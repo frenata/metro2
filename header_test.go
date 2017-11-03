@@ -3,7 +3,6 @@ package metro2
 import (
 	"encoding/json"
 	"io/ioutil"
-	"strings"
 	"testing"
 )
 
@@ -30,7 +29,7 @@ func TestBadFormatLength(t *testing.T) {
 func TestValidFile(t *testing.T) {
 	file, _ := ioutil.ReadFile("header.txt")
 
-	header, err := parseFixed(string(file))
+	header, err := parseFixed(string(file)[:len(file)-1])
 
 	if err != nil {
 		t.Fatalf("Valid file failed to parse: %s", err)
@@ -43,13 +42,11 @@ func TestValidFile(t *testing.T) {
 func TestThereAndBackAgain(t *testing.T) {
 	file, _ := ioutil.ReadFile("header.txt")
 
-	header, _ := parseFixed(string(file))
+	header, _ := parseFixed(string(file)[:len(file)-1])
 
 	formatted := formatFixedHeader(header.(*Header), 426)
 
-	t.Log(string(file) == formatted)
-	t.Log(strings.Compare(string(file), formatted))
-	t.Log(len(string(file)), len(formatted))
-	t.Log(string(file))
-	t.Log(formatted)
+	if string(file) != formatted {
+		t.Fatalf("Formatted header file was not the same as the original file.")
+	}
 }

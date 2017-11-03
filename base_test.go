@@ -9,7 +9,7 @@ import (
 func TestValidBaseFile(t *testing.T) {
 	file, _ := ioutil.ReadFile("base.txt")
 
-	base, err := parseFixed(string(file))
+	base, err := parseFixed(string(file)[:len(file)-1])
 
 	if err != nil {
 		t.Fatalf("Valid file failed to parse: %s", err)
