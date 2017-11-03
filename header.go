@@ -1,11 +1,12 @@
 package metro2
 
 import (
+	"fmt"
 	"time"
 )
 
 type Header struct {
-	Cycle        int       `json:"cycle"`
+	Cycle        string    `json:"cycle"`
 	ActivityDate time.Time `json:"activity_date"`
 	DateCreated  time.Time `json:"created_date"`
 	Agencies     Agencies  `json:"agency_numbers"`
@@ -29,9 +30,9 @@ type Program struct {
 }
 
 type Reporter struct {
-	Name        string `json:"name"`
-	Address     string `json:"address"`
-	PhoneNumber int    `json:phone_number"`
+	Name            string `json:"name"`
+	Address         string `json:"address"`
+	TelephoneNumber int    `json:"telephone_number"`
 }
 
 type Software struct {
@@ -42,7 +43,7 @@ type Software struct {
 func parseFixedHeader(source string) (*Header, error) {
 	e := errParser{source: source}
 
-	cycle := e.parseNumber(11, 12)
+	cycle := e.parseText(11, 12)
 	activity := e.parseDate(date, 48, 55)
 	created := e.parseDate(date, 56, 63)
 
@@ -59,4 +60,19 @@ func parseFixedHeader(source string) (*Header, error) {
 	}
 
 	return &Header{cycle, activity, created, agencies, program, reporter, software}, nil
+}
+
+func formatFixedHeader(h *Header, length int) string {
+	prefix := fmt.Sprintf("%04dHEADER", length)
+
+	agencies := fmt.Sprintf("%-10s%-10s%-5s%-10s", h.Agencies.Innovis, h.Agencies.Equifax, h.Agencies.Experian, h.Agencies.TransUnion)
+	program := fmt.Sprintf("%s%s", h.Program.StartDate.Format(date), h.Program.RevisionDate.Format(date))
+	reporter := fmt.Sprintf("%-40s%-96s%10d", h.Reporter.Name, h.Reporter.Address, h.Reporter.TelephoneNumber)
+	software := fmt.Sprintf("%-40s%-5s", h.Software.VendorName, h.Software.Version)
+
+	reserved := fmt.Sprintf("%-156s", "")
+
+	header := fmt.Sprintf("%-2s%s%s%s%s%s%s%s\n", h.Cycle, agencies, h.ActivityDate.Format(date), h.DateCreated.Format(date), program, reporter, software, reserved)
+
+	return prefix + header
 }
