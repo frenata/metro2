@@ -43,12 +43,12 @@ func parseFixedHeader(source string) (*Header, error) {
 	e := errParser{source: source}
 
 	cycle := e.parseNumber(11, 12)
-	activity := e.parseDate(48, 55)
-	created := e.parseDate(56, 63)
+	activity := e.parseDate(date, 48, 55)
+	created := e.parseDate(date, 56, 63)
 
 	agencies := Agencies{e.parseText(13, 22), e.parseText(23, 32), e.parseText(33, 37), e.parseText(38, 47)}
 
-	program := Program{e.parseDate(64, 71), e.parseDate(72, 79)}
+	program := Program{e.parseDate(date, 64, 71), e.parseDate(date, 72, 79)}
 
 	reporter := Reporter{e.parseText(80, 119), e.parseText(120, 215), e.parseNumber(216, 225)}
 

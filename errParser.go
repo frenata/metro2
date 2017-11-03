@@ -8,7 +8,8 @@ import (
 )
 
 //Go Date String: Mon Jan 2 15:04:05 -0700 MST 2006
-const dateFormat string = "01022006" // aka MMDDYYYY
+const date string = "01022006" // aka MMDDYYYY
+const timestamp string = "01022006150405"
 
 // errParser allows for clean parsing of a long string into values
 // by retaining the first error encountered
@@ -32,13 +33,13 @@ func (e *errParser) parseNumber(start, end int) (n int) {
 }
 
 // attempt to parse a string into a date
-func (e *errParser) parseDate(start, end int) (date time.Time) {
+func (e *errParser) parseDate(format string, start, end int) (date time.Time) {
 	if e.err != nil {
 		return date
 	}
 
 	str := e.subStr(start, end)
-	date, err := time.Parse(dateFormat, str)
+	date, err := time.Parse(format, str)
 	if err != nil {
 		e.err = err
 	}
