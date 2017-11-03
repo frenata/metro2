@@ -27,7 +27,7 @@ func TestBadFormatLength(t *testing.T) {
 }
 
 func TestValidFile(t *testing.T) {
-	file, _ := ioutil.ReadFile("header.txt")
+	file, _ := ioutil.ReadFile("data/header.txt")
 
 	header, err := parseFixed(string(file)[:len(file)-1])
 
@@ -40,7 +40,7 @@ func TestValidFile(t *testing.T) {
 }
 
 func TestThereAndBackAgain(t *testing.T) {
-	file, _ := ioutil.ReadFile("header.txt")
+	file, _ := ioutil.ReadFile("data/header.txt")
 
 	header, _ := parseFixed(string(file)[:len(file)-1])
 

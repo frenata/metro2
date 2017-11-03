@@ -7,7 +7,7 @@ import (
 )
 
 func TestValidBaseFile(t *testing.T) {
-	file, _ := ioutil.ReadFile("base.txt")
+	file, _ := ioutil.ReadFile("data/base.txt")
 
 	base, err := parseFixed(string(file)[:len(file)-1])
 
