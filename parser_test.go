@@ -1,6 +1,7 @@
 package metro2
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"testing"
 )
@@ -25,19 +26,15 @@ func TestBadFormatLength(t *testing.T) {
 	}
 }
 
-func TestValidLength(t *testing.T) {
-	file := "0015validheader"
-
-	_, err := parseFixedHeader(file)
-
-	if err != nil {
-		t.Fatalf("File with valid length failed to parse: %s", err)
-	}
-}
-
 func TestValidFile(t *testing.T) {
 	file, _ := ioutil.ReadFile("header.txt")
 
-	t.Log(len(file))
+	header, err := parseFixedHeader(string(file))
 
+	if err != nil {
+		t.Fatalf("Valid file failed to parse: %s", err)
+	}
+
+	json, _ := json.MarshalIndent(header, "", "  ")
+	t.Log(string(json))
 }
