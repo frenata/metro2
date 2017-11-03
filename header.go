@@ -1,15 +1,8 @@
 package metro2
 
 import (
-	"errors"
-	"fmt"
-	"strconv"
-	"strings"
 	"time"
 )
-
-//Mon Jan 2 15:04:05 -0700 MST 2006
-const dateFormat string = "01022006"
 
 type Header struct {
 	Cycle        int       `json:"cycle"`
@@ -20,6 +13,8 @@ type Header struct {
 	Reporter     Reporter  `json:"reporter"`
 	Software     Software  `json:"software"`
 }
+
+func (h Header) metro2() {}
 
 type Agencies struct {
 	Innovis    string `json:"innovis_number"`
@@ -47,12 +42,7 @@ type Software struct {
 func parseFixedHeader(source string) (*Header, error) {
 	e := errParser{source: source}
 
-	rdw := e.parseNumeric(1, 4)
-	if rdw != len(source) {
-		return nil, errors.New(fmt.Sprintf("Reported record length: (%d) does not match actual length of record: (%d).", rdw, len(source)))
-	}
-
-	cycle := e.parseNumeric(11, 12)
+	cycle := e.parseNumber(11, 12)
 	activity := e.parseDate(48, 55)
 	created := e.parseDate(56, 63)
 
@@ -60,7 +50,7 @@ func parseFixedHeader(source string) (*Header, error) {
 
 	program := Program{e.parseDate(64, 71), e.parseDate(72, 79)}
 
-	reporter := Reporter{e.parseText(80, 119), e.parseText(120, 215), e.parseNumeric(216, 225)}
+	reporter := Reporter{e.parseText(80, 119), e.parseText(120, 215), e.parseNumber(216, 225)}
 
 	software := Software{e.parseText(226, 265), e.parseText(266, 270)}
 
@@ -69,56 +59,4 @@ func parseFixedHeader(source string) (*Header, error) {
 	}
 
 	return &Header{cycle, activity, created, agencies, program, reporter, software}, nil
-}
-
-type errParser struct {
-	source string
-	err    error
-}
-
-func (e *errParser) parseNumeric(start, end int) (n int) {
-	if e.err != nil {
-		return n
-	}
-
-	str := e.subStr(start, end)
-	n, err := strconv.Atoi(str)
-	if err != nil {
-		e.err = err
-	}
-	return n
-}
-
-func (e *errParser) parseDate(start, end int) (date time.Time) {
-	if e.err != nil {
-		return date
-	}
-
-	str := e.subStr(start, end)
-	date, err := time.Parse(dateFormat, str)
-	if err != nil {
-		e.err = err
-	}
-	return date
-}
-
-func (e *errParser) parseText(start, end int) (text string) {
-	if e.err != nil {
-		return text
-	}
-
-	str := e.subStr(start, end)
-	text = strings.TrimSpace(str)
-
-	return text
-}
-
-// get positions n - m, inclusive, 1 indexed
-func (e errParser) subStr(n, m int) string {
-	if m > len(e.source) {
-		e.err = errors.New("Tried to index a source file beyond length" + strconv.Itoa(m))
-		return ""
-	}
-
-	return e.source[n-1 : m]
 }
