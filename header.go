@@ -5,41 +5,68 @@ import (
 	"time"
 )
 
+// A Header contains data related to the sender of the Base segments to follow.
 type Header struct {
 	Cycle        string    `json:"cycle"`
 	ActivityDate time.Time `json:"activity_date"`
 	DateCreated  time.Time `json:"created_date"`
-	Agencies     Agencies  `json:"agency_numbers"`
-	Program      Program   `json:"program"`
-	Reporter     Reporter  `json:"reporter"`
-	Software     Software  `json:"software"`
+	Agencies     agencies  `json:"agency_numbers"`
+	Program      program   `json:"program"`
+	Reporter     reporter  `json:"reporter"`
+	Software     software  `json:"software"`
 }
 
-func (h Header) metro2() {}
+// Metro creates a string in the Metro2 data from the Header data structure.
+func (h Header) Metro(length int) string {
+	prefix := fmt.Sprintf("%04dHEADER", length)
 
-type Agencies struct {
+	reserved := fmt.Sprintf("%-156s", "")
+
+	header := fmt.Sprintf("%-2s%s%s%s%s%s%s%s\n", h.Cycle, h.Agencies.metro(), h.ActivityDate.Format(date), h.DateCreated.Format(date), h.Program.metro(), h.Reporter.metro(), h.Software.metro(), reserved)
+
+	return prefix + header
+}
+
+type agencies struct {
 	Innovis    string `json:"innovis_number"`
 	Equifax    string `json:"equifax_number"`
 	Experian   string `json:"experian_number"`
 	TransUnion string `json:"transunion_number"`
 }
 
-type Program struct {
+func (a agencies) metro() string {
+	return fmt.Sprintf("%-10s%-10s%-5s%-10s", a.Innovis, a.Equifax, a.Experian, a.TransUnion)
+}
+
+type program struct {
 	StartDate    time.Time `json:"start_date"`
 	RevisionDate time.Time `json:"revision_date"`
 }
 
-type Reporter struct {
+func (p program) metro() string {
+	return fmt.Sprintf("%s%s", p.StartDate.Format(date), p.RevisionDate.Format(date))
+}
+
+type reporter struct {
 	Name            string `json:"name"`
 	Address         string `json:"address"`
 	TelephoneNumber int    `json:"telephone_number"`
 }
 
-type Software struct {
+func (r reporter) metro() string {
+	return fmt.Sprintf("%-40s%-96s%10d", r.Name, r.Address, r.TelephoneNumber)
+}
+
+type software struct {
 	VendorName string `json:"vendor_name"`
 	Version    string `json:"version"`
 }
 
+func (s software) metro() string {
+	return fmt.Sprintf("%-40s%-5s", s.VendorName, s.Version)
+}
+
+// Parse a fixed length header record.
 func parseFixedHeader(source string) (*Header, error) {
 	e := errParser{source: source}
 
@@ -47,32 +74,32 @@ func parseFixedHeader(source string) (*Header, error) {
 	activity := e.parseDate(date, 48, 55)
 	created := e.parseDate(date, 56, 63)
 
-	agencies := Agencies{e.parseText(13, 22), e.parseText(23, 32), e.parseText(33, 37), e.parseText(38, 47)}
+	agencies := agencies{
+		Innovis:    e.parseText(13, 22),
+		Equifax:    e.parseText(23, 32),
+		Experian:   e.parseText(33, 37),
+		TransUnion: e.parseText(38, 47),
+	}
 
-	program := Program{e.parseDate(date, 64, 71), e.parseDate(date, 72, 79)}
+	program := program{
+		StartDate:    e.parseDate(date, 64, 71),
+		RevisionDate: e.parseDate(date, 72, 79),
+	}
 
-	reporter := Reporter{e.parseText(80, 119), e.parseText(120, 215), e.parseNumber(216, 225)}
+	reporter := reporter{
+		Name:            e.parseText(80, 119),
+		Address:         e.parseText(120, 215),
+		TelephoneNumber: e.parseNumber(216, 225),
+	}
 
-	software := Software{e.parseText(226, 265), e.parseText(266, 270)}
+	software := software{
+		VendorName: e.parseText(226, 265),
+		Version:    e.parseText(266, 270),
+	}
 
 	if e.err != nil {
 		return nil, e.err
 	}
 
 	return &Header{cycle, activity, created, agencies, program, reporter, software}, nil
-}
-
-func formatFixedHeader(h *Header, length int) string {
-	prefix := fmt.Sprintf("%04dHEADER", length)
-
-	agencies := fmt.Sprintf("%-10s%-10s%-5s%-10s", h.Agencies.Innovis, h.Agencies.Equifax, h.Agencies.Experian, h.Agencies.TransUnion)
-	program := fmt.Sprintf("%s%s", h.Program.StartDate.Format(date), h.Program.RevisionDate.Format(date))
-	reporter := fmt.Sprintf("%-40s%-96s%10d", h.Reporter.Name, h.Reporter.Address, h.Reporter.TelephoneNumber)
-	software := fmt.Sprintf("%-40s%-5s", h.Software.VendorName, h.Software.Version)
-
-	reserved := fmt.Sprintf("%-156s", "")
-
-	header := fmt.Sprintf("%-2s%s%s%s%s%s%s%s\n", h.Cycle, agencies, h.ActivityDate.Format(date), h.DateCreated.Format(date), program, reporter, software, reserved)
-
-	return prefix + header
 }

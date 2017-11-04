@@ -9,21 +9,23 @@ import (
 func TestInvalidLength(t *testing.T) {
 	file := "0426invalidheader"
 
-	_, err := parseFixedHeader(file)
+	_, err := parseFixed(file)
 
 	if err == nil {
 		t.Fatal("File with invalid length should have failed to parse: instead, no error was returned")
 	}
+	t.Log(err)
 }
 
 func TestBadFormatLength(t *testing.T) {
 	file := "15invalidheader"
 
-	_, err := parseFixedHeader(file)
+	_, err := parseFixed(file)
 
 	if err == nil {
 		t.Fatalf("File with invalid numeric field did not return an error: %s", err)
 	}
+	t.Log(err)
 }
 
 func TestValidFile(t *testing.T) {
@@ -44,7 +46,7 @@ func TestThereAndBackAgain(t *testing.T) {
 
 	header, _ := parseFixed(string(file)[:len(file)-1])
 
-	formatted := formatFixedHeader(header.(*Header), 426)
+	formatted := header.Metro(426)
 
 	if string(file) != formatted {
 		t.Fatalf("Formatted header file was not the same as the original file.")

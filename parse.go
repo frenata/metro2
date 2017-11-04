@@ -7,7 +7,7 @@ import (
 
 // Trivially define a Metro2 interface type to allow for multiple structs to be returned from `parseFixed`
 type Metro2 interface {
-	metro2()
+	Metro(int) string
 }
 
 // Identify the type of record and return the appropriate data structure.
