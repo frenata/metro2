@@ -1,7 +1,6 @@
 package metro2
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -28,7 +27,7 @@ func (e *errParser) parseNumber(start, end int) (n int) {
 	str := e.subStr(start, end)
 	n, err := strconv.Atoi(str)
 	if err != nil {
-		e.err = errors.New(fmt.Sprintf("Error parsing number at positions %d-%d", start, end))
+		e.err = fmt.Errorf("Error parsing number at positions %d-%d", start, end)
 	}
 	return n
 }
@@ -42,7 +41,7 @@ func (e *errParser) parseDate(format string, start, end int) (date time.Time) {
 	str := e.subStr(start, end)
 	date, err := time.Parse(format, str)
 	if err != nil {
-		e.err = errors.New(fmt.Sprintf("Error parsing date at positions %d-%d with format string: %s.", start, end, format))
+		e.err = fmt.Errorf("Error parsing date at positions %d-%d with format string: %s", start, end, format)
 	}
 	return date
 }
@@ -62,7 +61,7 @@ func (e *errParser) parseText(start, end int) (text string) {
 // get positions n - m, inclusive, 1 indexed
 func (e errParser) subStr(n, m int) string {
 	if m > len(e.source) {
-		e.err = errors.New(fmt.Sprintf("Tried to index (%d) a source file beyond actual length (%d).", len(e.source), strconv.Itoa(m)))
+		e.err = fmt.Errorf("Tried to index (%d) a source file beyond actual length (%d)", len(e.source), strconv.Itoa(m))
 		return ""
 	}
 

@@ -91,7 +91,7 @@ func parseFixedBase(source string) (*Base, error) {
 
 	processing := e.parseNumber(5, 5)
 	if processing != 1 {
-		return nil, errors.New("Processing indicator was not set to 1.")
+		return nil, errors.New("Processing indicator was not set to 1")
 	}
 
 	time := e.parseDate(timestamp, 6, 19)
