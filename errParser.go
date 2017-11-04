@@ -61,7 +61,7 @@ func (e *errParser) parseText(start, end int) (text string) {
 // get positions n - m, inclusive, 1 indexed
 func (e errParser) subStr(n, m int) string {
 	if m > len(e.source) {
-		e.err = fmt.Errorf("Tried to index (%d) a source file beyond actual length (%d)", len(e.source), strconv.Itoa(m))
+		e.err = fmt.Errorf("Tried to index (%d) a source file beyond actual length (%d)", len(e.source), m)
 		return ""
 	}
 
