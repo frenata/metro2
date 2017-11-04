@@ -1,6 +1,7 @@
 package metro2
 
 import (
+	"encoding/json"
 	"errors"
 	"time"
 )
@@ -13,6 +14,11 @@ type Base struct {
 	Cycle          string    `json:"cycle"`
 	Account        account   `json:"account"`
 	Consumer       consumer  `json:"consumer"`
+}
+
+func (b Base) String() string {
+	json, _ := json.MarshalIndent(b, "", "  ")
+	return string(json)
 }
 
 type account struct {

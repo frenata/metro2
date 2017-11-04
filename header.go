@@ -1,6 +1,7 @@
 package metro2
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -14,6 +15,11 @@ type Header struct {
 	Program      program   `json:"program"`
 	Reporter     reporter  `json:"reporter"`
 	Software     software  `json:"software"`
+}
+
+func (h Header) String() string {
+	json, _ := json.MarshalIndent(h, "", "  ")
+	return string(json)
 }
 
 // Metro creates a string in the Metro2 data from the Header data structure.

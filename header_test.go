@@ -1,7 +1,6 @@
 package metro2
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"testing"
 )
@@ -37,8 +36,7 @@ func TestValidFile(t *testing.T) {
 		t.Fatalf("Valid file failed to parse: %s", err)
 	}
 
-	json, _ := json.MarshalIndent(header, "", "  ")
-	t.Log(string(json))
+	t.Log(header)
 }
 
 func TestThereAndBackAgain(t *testing.T) {
